@@ -1,6 +1,7 @@
 const { Client } = require('pg');
 const client = new Client('postgres://localhost:5432/juicebox-dev');
 
+//Gets all Users stored in the database then returns them.
 async function getAllUsers() {
   const { rows } = await client.query(
     `SELECT id, username, name, location, active FROM users;`
@@ -8,6 +9,7 @@ async function getAllUsers() {
   return rows;
 }
 
+//Creates a User with the info passed into the function
 async function createUser({ username, password, name, location }) {
   try {
     const result = client.query(
@@ -24,6 +26,7 @@ async function createUser({ username, password, name, location }) {
   }
 }
 
+//Creates a post with info passed into the function
 async function createPost({ authorid, title, content, tags = [] }) {
   try {
     const {
@@ -37,20 +40,26 @@ async function createPost({ authorid, title, content, tags = [] }) {
       [authorid, title, content]
     );
 
+    //Takes the tags parameter and uses
+    //it in other functions to add tags to the post
     const tagList = await createTags(tags);
     return await addTagsToPost(post.id, tagList);
   } catch (error) {
     throw error;
   }
 }
+
+//Takes a post and its fields and updates it accordingly
 async function updatePost(postid, fields = {}) {
   const { tags } = fields;
   delete fields.tags;
 
+  //Builds the setString constant
   const setString = Object.keys(fields)
     .map((key, index) => `"${key}" = $${index + 1}`)
     .join(', ');
 
+  //If anything needs to be updated, this will do that
   try {
     if (setString.length > 0) {
       const result = await client.query(
@@ -62,10 +71,14 @@ async function updatePost(postid, fields = {}) {
         Object.values(fields)
       );
     }
+
+    //If there are no tags to update, it returns early.
     if (tags === undefined) {
       return await getPostById(postid);
     }
 
+    //Makes the tagList constant which is used
+    //to add tags or delete uneeded tags
     const tagList = await createTags(tags);
     const tagListIdString = tagList.map((tag) => `${tag.id}`).join(', ');
 
@@ -77,12 +90,16 @@ async function updatePost(postid, fields = {}) {
     `,
       [postid]
     );
+
+    //Adds tags to the post if they arent on it already.
     await addTagsToPost(postid, tagList);
     return await getPostById(postid);
   } catch (error) {
     throw error;
   }
 }
+
+//Gets all posts from the database.
 async function getAllPosts() {
   try {
     const { rows } = await client.query(`
@@ -93,6 +110,9 @@ async function getAllPosts() {
     throw error;
   }
 }
+
+//Gets posts from the database based on the Author
+//Of said posts using AuthorID.
 async function getPostsByUser(userId) {
   try {
     const { rows } = await client.query(`
@@ -103,13 +123,18 @@ async function getPostsByUser(userId) {
     throw error;
   }
 }
+
+//Gets a user from the database based on UserID
 async function getUserById(userId) {
   try {
     const { rows } = await client.query(`
         SELECT * FROM users WHERE id = ${userId}
         `);
+    //If UserID isnt linked to a user, returns null
     if (!rows || !rows.length) {
       return null;
+      //Else if UserID is linked to a user, returns that
+      //users data
     } else if (rows || rows.length) {
       delete rows[0].password;
       const posts = await getPostsByUser(rows[0].id);
@@ -121,7 +146,9 @@ async function getUserById(userId) {
   }
 }
 
+//Updates a user based on fields passed into the function
 async function updateUser(id, fields = {}) {
+  //Builds setString
   const setString = Object.keys(fields)
     .map((key, index) => `"${key}" = $${index + 1}`)
     .join(', ');
@@ -131,6 +158,8 @@ async function updateUser(id, fields = {}) {
   }
 
   try {
+    //Updates a select user in the database using
+    //the field parameter
     const result = await client.query(
       `
       UPDATE users
@@ -144,6 +173,8 @@ async function updateUser(id, fields = {}) {
     throw error;
   }
 }
+
+//Creates tag objects based on a list of tags.
 async function createTags(tagList) {
   if (tagList.length === 0) {
     return;
@@ -174,6 +205,8 @@ async function createTags(tagList) {
   }
 }
 
+//Honestly im not entirely sure what this function
+//is supposed to do. It creates a post tag though.
 async function createPostTag(postid, tagid) {
   try {
     await client.query(
@@ -188,6 +221,9 @@ async function createPostTag(postid, tagid) {
     throw error;
   }
 }
+
+//Uses a post's id and a list of tags to add
+//tags to a post, then return said post.
 async function addTagsToPost(postid, tagList) {
   try {
     const createPostTagPromises = tagList.map((tag) =>
@@ -201,6 +237,8 @@ async function addTagsToPost(postid, tagList) {
   }
 }
 
+//Gets a post from the database, based on a
+//post's id
 async function getPostById(postid) {
   try {
     const {
@@ -213,6 +251,7 @@ async function getPostById(postid) {
       [postid]
     );
 
+    //Adds that posts tags into the returned object
     const { rows: tags } = await client.query(
       `
     SELECT tags.* FROM tags
@@ -221,6 +260,8 @@ async function getPostById(postid) {
     `,
       [postid]
     );
+
+    //Adds that posts author into the returned object
     const {
       rows: [author],
     } = await client.query(
@@ -244,6 +285,8 @@ async function getPostById(postid) {
   }
 }
 
+//Gets a list of posts from the database if they have
+//a select tag in their object.
 async function getPostsByTagName(tagName) {
   try {
     const { rows: postids } = await client.query(

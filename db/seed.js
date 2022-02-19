@@ -11,6 +11,7 @@ const {
   getPostsByTagName,
 } = require('./index');
 
+//Drops ALL tables out of the database
 async function dropTables() {
   try {
     console.log('Starting to drop tables...');
@@ -26,6 +27,8 @@ async function dropTables() {
   }
 }
 
+//Creates tables in the database, and
+//gives them parameters to follow
 async function createTables() {
   try {
     console.log('Starting to create tables...');
@@ -63,6 +66,8 @@ async function createTables() {
     throw error;
   }
 }
+
+//Creates users and adds them to the Users table
 async function createInitialUsers() {
   try {
     console.log('Starting to create users...');
@@ -90,6 +95,7 @@ async function createInitialUsers() {
   }
 }
 
+//Creates a list of initial posts
 async function createInitialPosts() {
   try {
     const [albert, sandra, glamgal] = await getAllUsers();
@@ -116,6 +122,7 @@ async function createInitialPosts() {
   }
 }
 
+//Rebuilds the database by invoking all of the functions
 async function rebuildDB() {
   try {
     client.connect();
@@ -128,6 +135,8 @@ async function rebuildDB() {
   }
 }
 
+//Tests the code and the database using functions
+//from both Seed.js, and Index.js
 async function testDB() {
   try {
     console.log('starting to test database');
@@ -170,6 +179,7 @@ async function testDB() {
   }
 }
 
+//Invokes the database tests, then ends client connection.
 rebuildDB()
   .then(testDB)
   .catch(console.error)
