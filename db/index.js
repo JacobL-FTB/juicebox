@@ -1,5 +1,4 @@
 const { Client } = require('pg');
-const { RowDescriptionMessage } = require('pg-protocol/dist/messages');
 const client = new Client('postgres://localhost:5432/juicebox-dev');
 
 async function getAllUsers() {

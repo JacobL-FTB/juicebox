@@ -1,4 +1,3 @@
-const { ADDRGETNETWORKPARAMS } = require('dns');
 const {
   client,
   getUserById,
@@ -10,8 +9,6 @@ const {
   getPostsByUser,
   createPost,
   getPostsByTagName,
-  createTags,
-  addTagsToPost,
 } = require('./index');
 
 async function dropTables() {
