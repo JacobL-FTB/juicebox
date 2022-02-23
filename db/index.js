@@ -195,7 +195,7 @@ async function createTags(tagList) {
     const result2 = await client.query(
       `
       SELECT * FROM tags
-      WHERE name IN (${selectValues})`,
+      WHERE name IN (${selectValues});`,
       tagList
     );
 
@@ -304,10 +304,16 @@ async function getPostsByTagName(tagName) {
     throw error;
   }
 }
+async function getAllTags() {
+  client.query(`
+  SELECT * FROM tags;
+  `);
+}
 
 module.exports = {
   client,
   getAllPosts,
+  getAllTags,
   getPostsByUser,
   getUserById,
   getAllUsers,
