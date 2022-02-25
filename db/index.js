@@ -304,15 +304,12 @@ async function getPostsByTagName(tagName) {
     throw error;
   }
 }
-<<<<<<< HEAD
 //Gets all tags from the DataBase
 async function getAllTags() {
   client.query(`
   SELECT * FROM tags;
   `);
 }
-=======
->>>>>>> parent of 0125739 (Created/ API folder)
 
 //Gets a user from the Database, based on their username
 async function getUserByUsername(username) {
@@ -335,11 +332,8 @@ async function getUserByUsername(username) {
 module.exports = {
   client,
   getAllPosts,
-<<<<<<< HEAD
   getUserByUsername,
   getAllTags,
-=======
->>>>>>> parent of 0125739 (Created/ API folder)
   getPostsByUser,
   getUserById,
   getAllUsers,
