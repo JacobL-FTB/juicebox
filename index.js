@@ -4,6 +4,7 @@ const express = require('express');
 const server = express();
 const morgan = require('morgan');
 const { client } = require('./db');
+require('dotenv').config();
 
 server.use(morgan('dev'));
 server.use(express.json());

@@ -12,11 +12,11 @@ async function getAllUsers() {
 //Creates a User with the info passed into the function
 async function createUser({ username, password, name, location }) {
   try {
-    const result = client.query(
+    const result = await client.query(
       `
     INSERT INTO users(username, password, name, location) VALUES ($1, $2, $3, $4)
     ON CONFLICT (username) DO NOTHING
-    RETURNING *;
+    RETURNING *
         `,
       [username, password, name, location]
     );
@@ -304,15 +304,35 @@ async function getPostsByTagName(tagName) {
     throw error;
   }
 }
+//Gets all tags from the DataBase
 async function getAllTags() {
   client.query(`
   SELECT * FROM tags;
   `);
 }
 
+//Gets a user from the Database, based on their username
+async function getUserByUsername(username) {
+  try {
+    const {
+      rows: [user],
+    } = await client.query(
+      `
+    SELECT * FROM users
+    WHERE username = $1
+    `,
+      [username]
+    );
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   client,
   getAllPosts,
+  getUserByUsername,
   getAllTags,
   getPostsByUser,
   getUserById,
