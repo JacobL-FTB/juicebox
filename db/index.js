@@ -39,7 +39,6 @@ async function createPost({ authorid, title, content, tags = [] }) {
       `,
       [authorid, title, content]
     );
-
     //Takes the tags parameter and uses
     //it in other functions to add tags to the post
     const tagList = await createTags(tags);
@@ -251,6 +250,13 @@ async function getPostById(postid) {
       [postid]
     );
 
+    if (!post) {
+      throw {
+        name: 'PostNotFoundError',
+        message: 'Could not find a post with that postId',
+      };
+    }
+
     //Adds that posts tags into the returned object
     const { rows: tags } = await client.query(
       `
@@ -292,8 +298,8 @@ async function getPostsByTagName(tagName) {
     const { rows: postids } = await client.query(
       `
     SELECT posts.id FROM posts
-    JOIN post_tags ON posts.id=post_tags.postid
-    JOIN tags ON tags.id=post_tags.tagid
+    JOIN post_tags ON posts.id=post_tags."postid"
+    JOIN tags ON tags.id=post_tags."tagid"
     WHERE tags.name = $1;
     `,
       [tagName]
@@ -306,9 +312,10 @@ async function getPostsByTagName(tagName) {
 }
 //Gets all tags from the DataBase
 async function getAllTags() {
-  client.query(`
-  SELECT * FROM tags;
+  const tags = await client.query(`
+  SELECT * FROM tags
   `);
+  return tags;
 }
 
 //Gets a user from the Database, based on their username
@@ -336,6 +343,7 @@ module.exports = {
   getAllTags,
   getPostsByUser,
   getUserById,
+  getPostById,
   getAllUsers,
   createUser,
   createPost,
