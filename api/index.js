@@ -5,12 +5,19 @@ const jwt = require('jsonwebtoken');
 const { getUserById } = require('../db');
 const { JWT_SECRET } = process.env;
 
+
+//Uses A token to get a user from the database,
+//then authorize them.
 apiRouter.use(async (req, res, next) => {
   const prefix = 'Bearer ';
   const auth = req.header('Authorization');
 
+
+  //If there is no token, stop.
   if (!auth) {
     next();
+  //Else, if there is a token, unencript it
+  //and get the user based on the unencripted id.
   } else if (auth.startsWith(prefix)) {
     const token = auth.slice(prefix.length);
     try {
@@ -31,6 +38,8 @@ apiRouter.use(async (req, res, next) => {
   }
 });
 
+
+//Sets the user as the one logged in for the other modules.
 apiRouter.use((req, res, next) => {
   if (req.user) {
     console.log('User is set:', req.user);

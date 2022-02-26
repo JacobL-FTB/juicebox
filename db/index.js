@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 const client = new Client('postgres://localhost:5432/juicebox-dev');
 
-//Gets all Users stored in the database then returns them.
+//Gets all Users stored in the database then returns them
 async function getAllUsers() {
   const { rows } = await client.query(
     `SELECT id, username, name, location, active FROM users;`

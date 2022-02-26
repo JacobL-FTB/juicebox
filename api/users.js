@@ -8,6 +8,7 @@ usersRouter.use((req, res, next) => {
   next();
 });
 
+//Gets all the users, then sends them to the front end.
 usersRouter.get('/', async (reg, res) => {
   const users = await getAllUsers();
   res.send({
@@ -15,6 +16,7 @@ usersRouter.get('/', async (reg, res) => {
   });
 });
 
+//If the /login route is connected to, attempt to login with credentials.
 usersRouter.post('/login', async (req, res, next) => {
   const { username, password } = req.body;
 
@@ -26,6 +28,8 @@ usersRouter.post('/login', async (req, res, next) => {
     });
   }
 
+
+  //If The username and password are equal to the users username and password in the database, log them in.
   try {
     const user = await getUserByUsername(username);
 
@@ -47,9 +51,12 @@ usersRouter.post('/login', async (req, res, next) => {
   }
 });
 
+
+//Registers a user by adding their info into the database.
 usersRouter.post('/register', async (req, res, next) => {
   const { username, password, name, location } = req.body;
 
+  //If a user with the same username already exists in the database, this throws an error.
   try {
     const _user = await getUserByUsername(username);
     if (_user) {
@@ -57,6 +64,7 @@ usersRouter.post('/register', async (req, res, next) => {
         name: 'UserExists',
         message: 'A user with that username already exists.',
       });
+      //Creates a user with the listed info.
     }
     const user = await createUser({
       username,
